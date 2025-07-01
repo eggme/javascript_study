@@ -149,5 +149,34 @@ log(iter6.next());
 
 for(const a of odds2(40)) { log(a) }
 
+// map
+const products = [
+    { name: '반팔티', price: 15000 },
+    { name: '긴팔티', price: 20000 },
+    { name: '핸드폰케이스', price: 15000 },
+    { name: '후드티', price: 30000 },
+    { name: '바지', price: 25000 },
+]
 
 
+let nameList = [];
+let priceList = [];
+for(const p of products) {
+    nameList.push(p.name);
+    priceList.push(p.price);
+}
+
+const mapList = (f, iter) => {
+    let names = [];
+    for(const p of iter) {
+        names.push(f(p));
+    }
+    return names
+}
+
+log(mapList(p => p.name, products));
+log(mapList(p => p.price, products));
+
+
+// 다형성
+// log(document.querySelectorAll('*'));

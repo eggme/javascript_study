@@ -101,5 +101,53 @@ console.log(...arr3);
 console.log([...arr3, ...[3,4]]); // 합칠 수도 있음
 log("===================");
 // 제너레이터 / 이터레이터
-// - 제너레이터: 이터레이터이자 이터러블을 생성하는 함수
+// - 제너레이터: 이터레이터이자 이터러블을 생성하는 함수, 함수 앞에 *를 붙임
+
+function *gen() {
+    yield 1;
+    yield 2;
+    yield 3;
+    return 100; // return 값은... 마지막 done을 했을 때의 값
+}
+
+let iter5 = gen()
+log(iter5[Symbol.iterator]() == iter5);
+log(iter5.next());
+log(iter5.next());
+log(iter5.next());
+log(iter5.next());
+
+// yield → 제너레이터 함수를 중지하거나 재개하는데 사용 됌
+
+function *infinity(i = 0) {
+    while(true) yield i++;
+}
+
+function *limit(l, iter) {
+    for(const a of iter) {
+        yield a;
+        if( a == l ) return;
+    }
+}
+
+function *odds2(l) {
+    for (const a of limit(l, infinity(1))) {
+        if( a % 2 ) yield a;
+        if( a == l ) return
+    }
+}
+
+let iter6 = odds2(10);
+log(iter6.next());
+log(iter6.next());
+log(iter6.next());
+log(iter6.next());
+log(iter6.next());
+log(iter6.next());
+log(iter6.next());
+
+
+for(const a of odds2(40)) { log(a) }
+
+
 

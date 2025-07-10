@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <script type="module">
+      import {module, products, go, totalQuantity, totalPrice1, comma} from './test.js'
+
+      window.calculate = function () {
+          const classes = [...document.querySelectorAll(".checkedCheckbox")].filter(_ => _.checked).map( p => p.id.replace('checkbox_', ''))
+          products.forEach( p => {
+            console.log(p.idx, p.name, classes.includes(p.idx.toString()))
+            classes.includes(p.idx.toString()) ? p.isSelected = true : p.isSelected = false
+          })
+
+          console.log(classes);
+          console.log(products)
+
+        const result = totalQuantity(module.customFilter(p => p.isSelected, products))
+        console.log(result)
+        document.querySelector(".totalQuantity").innerHTML = comma(result);
+        document.querySelector(".totalPrice").innerHTML = comma(totalPrice1(module.customFilter(p => p.isSelected, products)));
+      }
+
+      document.querySelector("#cart").innerHTML = `
+<table border="1px solid">
+    <tr>
+        <th>선택</th>
+        <th>상품 이름</th>
+        <th>가격</th>
+        <th>수량</th>
+        <th>총 가격</th>
+    </tr>
+    ${go(products,
+              module.customMap(p => `
+        <tr>
+            <td><input type="checkbox" class="checkedCheckbox" id="checkbox_${p.idx}" ${p.isSelected ? 'checked' : ''}></td>
+            <td>${p.name}</td>
+            <td>${comma(p.price)}</td>
+            <td><input type = "text" value="${p.quantity}"></input></td>
+            <td>${comma(p.price * p.quantity)}</td>
+        </tr>
+    `),
+              module.customReduce((v,p) => v + p)
+      )
+      }
+    <tr>
+        <td colspan="3">합계</td>
+        <td class="totalQuantity">${comma(totalQuantity(module.customFilter(p => p.isSelected, products)))}</td>
+        <td class="totalPrice">${comma(totalPrice1(module.customFilter(p => p.isSelected, products)))}</td>
+    </tr>
+    <tr>
+        <td colspan="5"><button id="btn" onclick="calculate()">다시 계산하기</button></td>
+    </tr>
+</table>
+`
+    </script>
+</head>
+<body>
+  <h1>test</h1>
+  <div id="cart"></div>
+</body>
+</html>

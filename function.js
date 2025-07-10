@@ -178,5 +178,148 @@ log(mapList(p => p.name, products));
 log(mapList(p => p.price, products));
 
 
+
+
 // 다형성
 // log(document.querySelectorAll('*'));
+log([1,2,3].map(a => a + 1));
+
+let m1 = new Map();
+m1.set('a', 10);
+m1.set('b', 20);
+const it = m1[Symbol.iterator]();
+log(it.next());
+log(it.next());
+log(it.next());
+log(mapList(([k,a]) => [k, a*2], m1));
+
+// filter
+log("====================== foreach")
+let under20000 = [];
+for(const p  of products) {
+    if(p.price < 20000) under20000.push(p);
+}
+log(...under20000);
+
+let over20000 = [];
+for(const p  of products) {
+    if(p.price > 20000) over20000.push(p);
+}
+log(...over20000);
+
+const filter = (iter, condition) => {
+    let result = [];
+    for(const tmp of iter) {
+        if( condition(tmp) ) result.push(tmp)
+    }
+    return result;
+}
+log("====================== customer filter");
+log(...filter(products, p => p.price > 20000));
+log(...filter(products, p => p.price < 20000));
+log("====================== built-in filter");
+log(...products.filter( p => p.price > 20000));
+log(...products.filter( p => p.price < 20000));
+log("====================== anonymous filter");
+log(...filter(iter = function*() {
+    yield 1;
+    yield 2;
+    yield 3;
+    yield 4;
+    yield 5;
+}(),condition = p => p % 2 === 1));
+
+// reduce 값을 축약하는 함수
+const nums = [1,2,3,4,5];
+log(...nums);
+let total = 0;
+for( const q of nums ) {
+    total = total + q;
+}
+log(total);
+
+const reduce = (func, acc, iter) => {
+    for(const t of iter) {
+        acc = func(acc, t);
+    }
+    return acc
+};
+const add = (a, b) =>  a + b;
+log(reduce(add, 0, [1,2,3,4,5]));
+log(add(add(add(add(add(0, 1),2),3),4), 5));
+log("====================== built-in reduce");
+log(nums.reduce((a,b) => a + b));
+log(nums.reduce((a,b, idx) => {
+    log("idx =>", idx, a, b)
+    if(idx > 0) {
+        return a + b
+    } else {
+        return 0
+    }
+}));
+
+log(reduce((totalPrice, product) => totalPrice + product.price, 0, products));
+log(products.reduce((totalPrice, product) => totalPrice + product.price, 0));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

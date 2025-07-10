@@ -207,7 +207,7 @@ for(const p  of products) {
 }
 log(...over20000);
 
-const filter = (iter, condition) => {
+const filter = (condition, iter) => {
     let result = [];
     for(const tmp of iter) {
         if( condition(tmp) ) result.push(tmp)
@@ -215,19 +215,19 @@ const filter = (iter, condition) => {
     return result;
 }
 log("====================== customer filter");
-log(...filter(products, p => p.price > 20000));
-log(...filter(products, p => p.price < 20000));
+log(...filter (p => p.price > 20000, products));
+log(...filter(p => p.price < 20000, products));
 log("====================== built-in filter");
 log(...products.filter( p => p.price > 20000));
 log(...products.filter( p => p.price < 20000));
 log("====================== anonymous filter");
-log(...filter(iter = function*() {
+log(...filter(condition = p => p % 2 === 1, iter = function*() {
     yield 1;
     yield 2;
     yield 3;
     yield 4;
     yield 5;
-}(),condition = p => p % 2 === 1));
+}()));
 
 // reduce 값을 축약하는 함수
 const nums = [1,2,3,4,5];

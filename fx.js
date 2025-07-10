@@ -48,3 +48,54 @@ export const customReduce = curry((func, acc, iter) => {
     }
     return acc
 })
+
+export const LazyMap = curry((f, iter) => {
+    let res = [];
+    iter = iter[Symbol.iterator]();
+    let cur;
+    while(!(cur = iter.next()).done) {
+        res.push(f(cur.value));
+    }
+    return res;
+
+})
+
+export const LazyFilter = curry((f, iter) => {
+    let res = [];
+    iter = iter[Symbol.iterator]();
+    let cur;
+    while(!(cur = iter.next()).done) {
+        const v = cur.value
+        if( f(v) ) res.push(v);
+    }
+    return res;
+})
+
+export const LazyReduce = curry((f, acc, iter) => {
+    if( !iter ) {
+        iter = acc[Symbol.iterator]();
+        acc = iter.next().value;
+        // log("acc =>", acc)
+    } else {
+        iter = iter[Symbol.iterator]();
+    }
+    let res = [];
+    let cur;
+    while(!(cur = iter.next()).done) {
+        const v = cur.value
+        acc = f(acc, v);
+    }
+    return res;
+})
+
+export const LazyTake = curry((f, iter) => {
+    let res = [];
+    iter = iter[Symbol.iterator]();
+    let cur;
+    while(!(cur = iter.next()).done) {
+        const v = cur.value
+        res.push(v);
+        if( f(v) ) return res;
+    }
+    return res;
+})

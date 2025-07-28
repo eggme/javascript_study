@@ -320,8 +320,163 @@ L.flatMap = curry(L.deepFlatten)
 log(flatList)
 go(flatList, L.deepFlatten, log)
 
-const it2 = L.flatMap(a => a, flatList)
-log([...it2])
+function add10(a, callback) {
+    setTimeout(() => callback(a + 10), 1000)
+}
+
+var a = add10(5, res => {
+    log(res);
+})
+log("test~");
+log(a);
+function add20(a) {
+    return new Promise(resolve => setTimeout(() => resolve(a + 20), 1000));
+}
+
+var b = add20(5) // promise <-> callback function , promise 는 대기와 성공과 실패를 다루는 일급 값으로 이루어져 있음, 비동기 적인 것을 값으로 만들어서
+    .then(add20)
+    .then(add20)
+    .then(res => {
+        log(res);
+        return res
+    })
+    .then(a => a)
+    .catch(a => a)
+    .finally(() => {
+        log('try catch finally~~');
+    })
+;
+
+log(b); // 코드를 평가 했을 때 즉시 promise 가 리턴됨, 비동기 상황을 값으로 가지고 있어서, 다른 함수에 전달이나 여러가지가 작업이 가능함
+// Promise 는 비동기 작업의 성공 또는 실패를 처리할 수 있는 자바스크립트 객체, 주로 서버 통신, 파일 읽기, 타이머 같은 시간이 걸리는 작업에서 사용됩니다.
+// 상태
+// pending -> 대기 중 (아직 결과가 없음)
+// fulfilled -> 성공적으로 완료됨 (resolve)
+// rejected -> 실패함 (reject)
+
+// 자주쓰이는 static 메서드
+// Promise.resolve(val) -> 이미 성공된 Promise 생성
+// Promise.reject(err) -> 이미 실패된 Promise 생성
+// Promise.all([...]) -> 모든 Promise가 성공해야 완료됨
+// Promise.race([...]) -> 가장 먼저 끝난 Promise로 결과 결정
+// Promise.allSettled([...]) -> 모든 결과를 성공/실패 구분 없이 반환
+
+
+
+
+b.then(res => {
+    log("중간점검 : ", res)
+    return res;
+}).then(add20)
+    .then(res => {
+    log("res => ", res)
+});
+
+const delay100 = a => new Promise(resolve => {setTimeout(() => resolve(a), 100)})
+
+const go1 = (a, f) => a instanceof Promise ? a.then(f) : f(a);
+const add5 = a => a + 5
+var r1 = go1(go1(10, add5), log);
+var r2 = go1(go1(delay100(10), add5), log);
+log(r1)
+log(r2)
+// 비동기 상황에서 함수 합성을 안전하게 하려는 모나드
+// f . g
+// f(g(x));
+
+const g = a => a + 1;
+const ff = a => a * a;
+log(ff(g(1)));
+log(ff(g())); // 빈값이 들어오면 빈 값으로 처리를 해버림...
+[1].map(g).map(ff).forEach(r => log(r));
+[].map(g).map(ff).forEach(r => log(r)); // 값이 없으면 아예 실행을 안하니까...
+[1, 2, 3].map(g).filter(r => r % 2).map(ff).forEach(r => log(r)); // 값이 없으면 아예 실행을 안하니까...
+
+Array.of(1).map(g).map(ff).forEach(r => log(r));
+Promise.resolve(1).then(g).then(ff).then(r => log(r));
+// 함수를 합성하는 시점을 안전하게 만듦
+
+// kleisli composition -> 오류가 있을 수 있는 상황에서 함수 합성을 안전하게 하는 하나의 규칙
+// 들어오는 인자가 아예 잘못된 값이라서 함수에서 오류가 나는 상황이라든지...
+// f1 . g1
+// f1(g1(x)) = f1(g1(x));
+
+var users3 = [
+    {id : 1, name : 'aa'},
+    {id : 2, name : 'bb'},
+    {id : 3, name : 'cc'}
+]
+
+const getUserByIdWithAwait = (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            log('setTimeout 실행~');
+            const user = users3.find(u => u.id === id);
+            if ( user ) {
+                resolve(user);
+            } else {
+                reject("찾을 수 없음");
+            }
+        }, 1000);
+    })
+}
+
+getUserByIdWithAwait(1) // try ~ catch 방식
+    .then(user => {
+        log('then 사용자:', user.name)
+    })
+    .catch(err => {
+        log('에러:', err)
+    })
+
+const run = async () => {
+    try {
+        const user = await getUserByIdWithAwait(1);
+        log('await 사용자:', user.name)
+    }catch (err) {
+        log('찾을 수 없음')
+    }
+}
+
+run();
+
+const getUserById = id => users3.find(u => u.id === id) || Promise.reject('없음~~')
+const f3 = ({name}) => name;
+const g3 = getUserById;
+
+const fg = id => f3(g3(id))
+const fg2 = id => Promise.resolve(id).then(g3).then(f3).catch(a => a);
+
+log(fg(2) === fg(2));
+users3.pop();
+users3.pop();
+log(users3);
+
+// log(fg(2));
+
+log(fg2[2]);
+
+fg2(2).then(log);
+// console.clear()
+log("======================================================");
+go(Promise.resolve(1),
+    a => a + 10,
+    a => a + 100,
+    a => Promise.reject("실패요~!!!"),
+    a => Promise.resolve(a + 1000),
+    a => a + 10000,
+    a => {
+        log('끝~~~', a);
+        return a
+    }
+).catch(a => console.log(a));
+
+// promise.then 의 중요한 규칙
+log("========================================== ~_~ ==========================================")
+Promise.resolve(Promise.resolve(Promise.resolve(1))).then(log);
+// promise 가 중첩이된다해도 원하는 곳에서 한번에 then으로 꺼내서 쓸 수 있음
+
+
 
 
 

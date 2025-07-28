@@ -5,6 +5,9 @@ export function testFunc(){
     return "test func call~~"
 }
 
+const go1 = (a, f) => a instanceof Promise ? a.then(f) : f(a);
+
+export const go = (...args) => customReduce((v, f) => f(v), args);
 
 const curry = f => (a, ..._) => _.length ? f(a, ..._) : (..._) => f(a, ..._);
 
@@ -21,7 +24,8 @@ export class TestClz {
 export const customMap = curry((func, iter) => {
     let names = [];
     for(const p of iter) {
-        names.push(func(p));
+        const data = go1(p, func)
+        names.push(data);
     }
     return names
 })
@@ -42,11 +46,18 @@ export const customReduce = curry((func, acc, iter) => {
         iter = acc[Symbol.iterator]();
         acc = iter.next().value;
         // log("acc =>", acc)
+    } else {
+        iter = iter[Symbol.iterator]();
     }
-    for(const t of iter) {
-        acc = func(acc, t);
-    }
-    return acc
+    return go1(acc, function reucr(acc) { // 유명함수
+        let cur;
+        while(!(cur = iter.next()).done) {
+            const a = cur.value;
+            acc = func  (acc, a);
+            if( acc instanceof Promise) return acc.then(reucr);
+        }
+        return acc;
+    });
 })
 
 export const LazyMap = curry((f, iter) => {
@@ -91,11 +102,17 @@ export const LazyReduce = curry((f, acc, iter) => {
 export const LazyTake = curry((f, iter) => {
     let res = [];
     iter = iter[Symbol.iterator]();
-    let cur;
-    while(!(cur = iter.next()).done) {
-        const v = cur.value
-        res.push(v);
-        if( f(v) ) return res;
-    }
-    return res;
+    return function recur() {
+        let cur;
+        while(!(cur = iter.next()).done) {
+            const v = cur.value
+            if ( v instanceof Promise ) return v.then(a => {
+                res.push(a)
+                return f(a) ? res : recur();
+            });
+            res.push(v);
+            if( f(v) ) return res;
+        }
+        return res;
+    }();
 })

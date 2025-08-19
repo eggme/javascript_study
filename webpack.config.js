@@ -64,6 +64,7 @@ module.exports = { // 노드의 모듈 시스템
                 errors: true
             }, // 빌드시 에러나 경고를 브라우저에 표현
         },
+        hot: true, // hot Module Replacement
         port: 3000,
         //historyApiFallBack: true, // 히스토리 API를 사용하는 SPA 개발시 설정한다. 404가 발생하면 index.html로 리다이렉트한다.
         open: true, // 브라우저 자동 열기

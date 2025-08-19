@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "start": "webpack-dev-server --progress"
   },
   "private": true,
   "devDependencies": {
+    "axios": "^1.11.0",
+    "html-webpack-plugin": "^5.6.4",
     "webpack": "^5.100.2",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
     "acorn": "^8.15.0",
@@ -112,5 +116,10 @@
   "bugs": {
     "url": "https://github.com/eggme/javascript_study/issues"
   },
-  "homepage": "https://github.com/eggme/javascript_study#readme"
+  "homepage": "https://github.com/eggme/javascript_study#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "echo \"이것은 커밋전에 출력됨\""
+    }
+  }
 }
